@@ -1,6 +1,10 @@
 # RealSense Recorder
 Records color and depth frames from RealSense
 
+
+![Screenshot from 2021-07-27 15-30-42](https://user-images.githubusercontent.com/4254623/127154001-6d8d96b8-dc13-4fe6-acec-a76595b6e5c2.png)
+
+
 ## Usage
 
 1. `cd` into this directory
