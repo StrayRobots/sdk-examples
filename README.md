@@ -1,2 +1,2 @@
-# Stray Robots Public
-Public scripts
+# StrayPublic
+Stray Robots Public utilities and scripts
