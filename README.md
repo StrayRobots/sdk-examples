@@ -1,2 +1,2 @@
-# public
+# Stray Robots Public
 Public scripts
