@@ -15,6 +15,7 @@ from os.path import exists, join
 import shutil
 import json
 from enum import IntEnum
+import inquirer
 
 
 class Preset(IntEnum):
@@ -78,23 +79,64 @@ if __name__ == "__main__":
     make_clean_folder(path_output)
     make_clean_folder(path_depth)
     make_clean_folder(path_color)
-    # Create a pipeline
     pipeline = rs.pipeline()
-
-    #Create a config and configure the pipeline to stream
-    #  different resolutions of color and depth streams
     config = rs.config()
+    pipeline_wrapper = rs.pipeline_wrapper(pipeline)
+    pipeline_profile = config.resolve(pipeline_wrapper)
+    device = pipeline_profile.get_device()
 
-    fps = 30
-    config.enable_stream(rs.stream.depth, 1280, 720, rs.format.z16, fps)
-    config.enable_stream(rs.stream.color, 640, 480 , rs.format.bgr8, fps)
+    #Loop through available sensors
+    for sensor in device.sensors:
+        if sensor.is_color_sensor():
+            sensor_type = "color"
+        elif sensor.is_depth_sensor():
+            sensor_type = "depth"
+        else:
+            print("Unknown sensor type, skipping.")
+            continue
+
+        options = []
+
+        #Loop through stream profiles
+        for profile in sensor.get_stream_profiles():
+            profile = profile.as_video_stream_profile()
+            #Pick streams with fps at least 30 and proper formats
+            if profile.fps() >= 30:
+                if (sensor_type == "color" and int(profile.format()) == int(rs.format.bgr8)) or (sensor_type == "depth" and int(profile.format() == int(rs.format.z16))):
+                    option = dict(width=profile.width(), height=profile.height(), fps=profile.fps(), format=profile.format())
+                    options.append(option)
+        
+        #Prompt selection of available resolutions/fps in the shell
+        prompt = [
+        inquirer.List('value',
+                        message=f"Choose {sensor_type} sensor stream type",
+                        choices=options
+                    ),
+        ]
+        result = inquirer.prompt(prompt)
+        width = result["value"]["width"]
+        height = result["value"]["height"]
+        format = result["value"]["format"]
+        fps = result["value"]["fps"]
+        stream_type = profile.stream_type()
+        config.enable_stream(stream_type, width, height, format, fps)
 
     # Start streaming
     profile = pipeline.start(config)
     depth_sensor = profile.get_device().first_depth_sensor()
+    color_sensor = profile.get_device().first_color_sensor()
 
-    # Using preset HighAccuracy for recording
-    depth_sensor.set_option(rs.option.visual_preset, Preset.HighAccuracy)
+    #Set sensor options, all available here: https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.option.html
+
+    #Set depth sensor options, recommendations: https://dev.intelrealsense.com/docs/d400-series-visual-presets
+    depth_sensor.set_option(rs.option.visual_preset, Preset.HighAccuracy)  # Using preset HighAccuracy for recording
+
+    #Set color sensor options
+    color_sensor.set_option(rs.option.enable_auto_exposure, 0.0) #Disable auto exposure
+    color_sensor.set_option(rs.option.enable_auto_white_balance, 0.0) #Disable auto white balance  
+    color_sensor.set_option(rs.option.white_balance, 3700.0) #White balance, adjust as needed   
+    color_sensor.set_option(rs.option.gain, 64.0) #Gain, adjust as needed  
+    color_sensor.set_option(rs.option.exposure, 953.0) #Exposure, adjust as needed 
 
     # Getting the depth sensor's depth scale (see rs-align example for explanation)
     depth_scale = depth_sensor.get_depth_scale()
@@ -153,7 +195,7 @@ if __name__ == "__main__":
             depth_colormap = cv2.applyColorMap(
                 cv2.convertScaleAbs(depth_image, alpha=0.09), cv2.COLORMAP_JET)
             images = np.hstack((bg_removed, depth_colormap))
-            cv2.namedWindow('Recorder Realsense', cv2.WINDOW_AUTOSIZE)
+            cv2.namedWindow('Recorder Realsense', cv2.WINDOW_GUI_NORMAL)
             cv2.imshow('Recorder Realsense', images)
             key = cv2.waitKey(1)
 
