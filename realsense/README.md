@@ -13,7 +13,7 @@ Records color and depth frames from RealSense
 6. To stop data collection press `CTRL+C` in your terminal
 
 ## Settings
-* The script will prompt the user to select an available resolution for both color and depth streams![Screenshot from 2021-10-26 15-16-00](https://user-images.githubusercontent.com/4254623/138876849-2c28d08b-e517-430b-99fa-02e83e271972.png)
+* The script will prompt the user to select an available resolution for both color and depth streams![Screenshot from 2021-10-26 15-16-00](https://user-images.githubusercontent.com/4254623/138876849-2c28d08b-e517-430b-99fa-02e83e271972.png). We use [inquirer](https://pypi.org/project/inquirer/) for prompting, example in the script: https://github.com/StrayRobots/StrayPublic/blob/8416b1d6ce239a0ab717a7f8cf93a37b2153dafe/realsense/record.py#L109
 ![Screenshot from 2021-10-26 15-15-40](https://user-images.githubusercontent.com/4254623/138876857-3a0e0de4-b5b9-4f9c-b3fb-b146c91a7be8.png)
 * For the color stream, choosing the highest resolution with the highest fps is recommended
 * Depth stream: D435, use 848x480 resolution @30fps. D415, use 1280x720 resolution @30fps. Further recommendations in the [documentation](https://dev.intelrealsense.com/docs/d400-series-visual-presets).
