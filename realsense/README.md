@@ -17,4 +17,7 @@ Records color and depth frames from RealSense
 ![Screenshot from 2021-10-26 15-15-40](https://user-images.githubusercontent.com/4254623/138876857-3a0e0de4-b5b9-4f9c-b3fb-b146c91a7be8.png)
 * For the color stream, choosing the highest resolution with the highest fps is recommended
 * Depth stream: D435, use 848x480 resolution @30fps. D415, use 1280x720 resolution @30fps. Further recommendations in the [documentation](https://dev.intelrealsense.com/docs/d400-series-visual-presets).
-* If settings need to be changed, examples are provided in the script. Depth: https://github.com/StrayRobots/StrayPublic/blob/8416b1d6ce239a0ab717a7f8cf93a37b2153dafe/realsense/record.py#L131, Color: https://github.com/StrayRobots/StrayPublic/blob/8416b1d6ce239a0ab717a7f8cf93a37b2153dafe/realsense/record.py#L134. All available options are documented here: https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.option.html
+* If settings need to be changed, examples are provided in the script
+  - Depth: https://github.com/StrayRobots/StrayPublic/blob/8416b1d6ce239a0ab717a7f8cf93a37b2153dafe/realsense/record.py#L131
+  - Color: https://github.com/StrayRobots/StrayPublic/blob/8416b1d6ce239a0ab717a7f8cf93a37b2153dafe/realsense/record.py#L134
+  - All available options are documented here: https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.option.html
