@@ -13,6 +13,7 @@ Records color and depth frames from RealSense D400 cameras
 7. To stop data collection press `esc` or `CTRL+C` in your terminal
 
 ## Settings and args
+* A working preset configuration for the depth stream is provided in the `rsconfig.json` file and it is used by default
 * To use an alternative config for the depth stream, first save a preset using the `realsense-viewer` app by clikcking the save button next to the preset selector.
   - ![Screenshot from 2021-11-01 16-07-27](https://user-images.githubusercontent.com/4254623/139684923-5028eed9-6e7a-4ebd-84a4-f0c8b6ef30f1.png)
   - Specify path to the saved json file with the `--config` flag
