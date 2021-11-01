@@ -9,7 +9,7 @@ Records color and depth frames from RealSense D400 cameras
 2. Install requirements with `pip install -r requirements.txt` into your current python environment
 3. Connect your RealSense sensor to the computer via USB
 4. Start image capture with `python record.py --out <OUPUT_FOLDER, default=./collected_dataset> --config <PATH_TO_CONFIG, default=./rsconfig.json> --reset-sleep <RESET_SLEEP, default=5>`
-6. Images are saved into `<OUPUT_FOLDER>/color` and `<OUPUT_FOLDER>/depth` along with a `<OUPUT_FOLDER>/camera_intrinsics.json` file
+6. Images are saved into `<OUPUT_FOLDER>/color`, `<OUPUT_FOLDER>/depth`, and `<OUPUT_FOLDER>/colorized_depth` along with a `<OUPUT_FOLDER>/camera_intrinsics.json` file
 7. To stop data collection press `esc` or `CTRL+C` in your terminal
 
 ## Settings and args
