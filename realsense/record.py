@@ -130,6 +130,17 @@ if __name__ == "__main__":
 
     profile = pipeline.start(config)
     depth_sensor = profile.get_device().first_depth_sensor()
+    color_sensor = profile.get_device().first_color_sensor()
+
+    #Set depth sensor options, recommendations: https://dev.intelrealsense.com/docs/d400-series-visual-presets
+    #depth_sensor.set_option(rs.option.visual_preset, Preset.HighAccuracy)  # Using preset HighAccuracy for recording
+
+    #Set color sensor options
+    color_sensor.set_option(rs.option.enable_auto_exposure, 0.0) #Disable auto exposure
+    color_sensor.set_option(rs.option.enable_auto_white_balance, 0.0) #Disable auto white balance  
+    color_sensor.set_option(rs.option.white_balance, 3700.0) #White balance, adjust as needed   
+    color_sensor.set_option(rs.option.gain, 64.0) #Gain, adjust as needed  
+    color_sensor.set_option(rs.option.exposure, 953.0) #Exposure, adjust as needed 
 
     colorizer = rs.colorizer()
     post_processor = PostProcessor()
