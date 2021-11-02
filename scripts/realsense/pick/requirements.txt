@@ -1,2 +1,3 @@
-pyrealsense2
+https://stray-builds.ams3.digitaloceanspaces.com/straymodel/straymodel-0.0.1-py38-none-any.whl
+https://stray-builds.ams3.digitaloceanspaces.com/straylib/straylib-0.0.1-py38-none-any.whl
 git+https://github.com/StrayRobots/detectron2.git
