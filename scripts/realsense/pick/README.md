@@ -7,7 +7,7 @@ Predicts 3D pick points of objects
 ## Usage
 
 1. Follow the basic installation steps here: https://github.com/StrayRobots/StrayPublic
-2. Install specific requirements for the picking example by running `pip install -r requirements.txt` in this directory into your current python environment.
+2. Install specific requirements for the picking example into your current python environment by running `pip install -r requirements.txt` in this directory
 3. Connect your RealSense sensor to the computer via USB
 4. Start the prediction pipeline with `python pick.py <MODEL_DIR> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP> --visualize <VISUALIZATION_TYPE> --z <PICK_HEIGHT> --minimum-confidence <MINIMUM_CONFIDENCE> --depth-box-scale <DEPTH_BOX_SCALE> --hand-eye <HAND_EYE>`
     - `<MODEL_DIR>` is the path to the provided prediction model directory
