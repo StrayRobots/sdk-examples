@@ -1,11 +1,12 @@
 # Picking Example using the Intel RealSense
 Predicts 3D pick points of objects
-![Screenshot from 2021-11-01 15-56-25](https://user-images.githubusercontent.com/4254623/139684115-c63562a8-87bd-4a98-99df-7a768e91282d.png)
+![Screenshot from 2021-11-02 12-46-03](https://user-images.githubusercontent.com/4254623/139871411-22094581-5f67-4417-81dd-c9d3a2ad4477.png)
+
 
 
 ## Usage
 
-1. Follow the basic installation steps here: <home>
+1. Follow the basic installation steps here: https://github.com/StrayRobots/StrayPublic
 2. Install specific requirements for the picking example by running `pip install -r requirements.txt` in this directory into your current python environment.
 3. Connect your RealSense sensor to the computer via USB
 4. Start the prediction pipeline with `python pick.py <MODEL_DIR> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP> --visualize <VISUALIZATION_TYPE> --z <PICK_HEIGHT> --minimum-confidence <MINIMUM_CONFIDENCE> --depth-box-scale <DEPTH_BOX_SCALE> --hand-eye <HAND_EYE>`
