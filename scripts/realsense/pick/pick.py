@@ -27,7 +27,10 @@ def get_point_W(p, T_WC):
     return point_W[:3]
 
 def draw_box(image, instance, scale=1):
-    rect = ((instance["x"], instance["y"]), (instance["width"]*scale, instance["height"]*scale), instance["rotation"])
+    bbox = instance['bounding_box']
+    center = bbox['center']
+
+    rect = ((center[0], center[1]), (bbox["width"]*scale, bbox["height"]*scale), bbox["rotation"])
     cv_box = cv2.boxPoints(rect)
     cv_box = np.int0(cv_box)
     cv2.drawContours(image, [cv_box], 0, (0,255,0), 2)
@@ -117,7 +120,7 @@ def main(**args):
             color_frame = aligned_frames.get_color_frame()
             if not aligned_depth_frame or not color_frame:
                 continue
-            
+
             #Process color and depth images
             aligned_depth_frame = post_processor(aligned_depth_frame)
             colorized_depth_image = np.asanyarray(colorizer.colorize(aligned_depth_frame).get_data())
@@ -131,7 +134,7 @@ def main(**args):
 
             #Get predictions from the detector based on known pick height z
             predictions_from_height = detector(color_image, depth_image, args["z"])
-            
+
             spheres = []
 
             #Iterate detections
@@ -141,9 +144,9 @@ def main(**args):
                 draw_box(colorized_depth_image, pred_depth, args["depth_box_scale"])
 
                 #Convert depth based 3d point to robot coordinates for downstream use
-                point_3d_depth_W = get_point_W(pred_depth["point_3d"], T_WC)
+                point_3d_depth_W = get_point_W(pred_depth["center_3d"], T_WC)
                 #Convert height based 3d point to robot coordinates for downstream use
-                point_3d_height_W = get_point_W(pred_height["point_3d"], T_WC)
+                point_3d_height_W = get_point_W(pred_height["center_3d"], T_WC)
 
 
                 #Add points into 3d visualization
@@ -151,7 +154,7 @@ def main(**args):
                     spheres.append(get_o3d_sphere(point_3d_depth_W, np.array([0, 1, 0]))) #Green spheres
 
                     spheres.append(get_o3d_sphere(point_3d_height_W, np.array([0, 0, 1]))) #Blue spheres
-                
+
 
             if args["visualize"] == "3d":
                 #NOTE: below blocks the loop, close the window to continue
