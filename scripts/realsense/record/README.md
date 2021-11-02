@@ -18,7 +18,7 @@ Records color and depth frames from RealSense D400 cameras
 * A working preset configuration for the depth stream is provided in the `rsconfig.json` file and it is used by default
 * To use an alternative config for the depth stream, first save a preset using the `realsense-viewer` app by clicking the save button next to the preset selector
   - ![139684923-5028eed9-6e7a-4ebd-84a4-f0c8b6ef30f1](https://user-images.githubusercontent.com/4254623/139693688-b87106df-d06b-48d7-8208-f645a9e40e79.png)
-  - Specify the path to the saved json file with the `--config` flag
+  - Specify the path to the saved json file with the `--json-config` flag
 
 * The `--reset-sleep` flag is used to specify how long to sleep after the device settings have been reset to default settings. Increase the number if the script seems to crash
 
