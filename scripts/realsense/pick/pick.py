@@ -27,7 +27,6 @@ def get_point_W(p, T_WC):
     point_W = T_WC @ point_C
     return point_W[:3]
 
-
 def draw_box(image, instance, scale=1):
     rect = ((instance["x"], instance["y"]), (instance["width"]*scale, instance["height"]*scale), instance["rotation"])
     cv_box = cv2.boxPoints(rect)
@@ -45,6 +44,23 @@ def visualize_images(color_image, colorized_depth_image):
     cv2.imshow("Depth", colorized_depth_image)
     cv2.waitKey(1)
 
+def load_hand_eye(hand_eye_json):
+    with open(hand_eye_json, 'rt') as f:
+        data = json.load(f)
+    t = data['translation']
+    q = data['rotation']
+    T_HC = np.eye(4)
+    R = Rotation.from_quat([q['i'], q['j'], q['k'], q['w']])
+    T_HC[:3, :3] = T_HC.as_matrix()
+    T_HC[:3, 3] = [t['x'], t['y'], t['z']]
+    return T_HC
+
+def to_transformation_matrix(x, y, z, rx, ry, rz):
+    T = np.eye(4)
+    R = Rotation.from_euler('xyz', [rx, ry, rz])
+    T[:3, :3] = R.as_matrix()
+    T[:3, 3] = [x, y, z]
+    return T
 
 @click.command()
 @click.argument('model', nargs=1)
@@ -54,6 +70,7 @@ def visualize_images(color_image, colorized_depth_image):
 @click.option('--camera-height', default=0.75)
 @click.option('--object-height', default=0.075)
 @click.option('--depth-box-scale', default=0.5)
+@click.option('--hand-eye', type=str)
 def main(**args):
     #Creates a detector from the provided model
     detector = OrientedBoundingBoxDetector.from_directory(args["model"])
@@ -79,14 +96,15 @@ def main(**args):
     #Setup frame post processing and visualization
     colorizer = rs.colorizer()
     post_processor = RealSensePostProcessor()
-    
 
-    #NOTE: replace below with actual transformation of camera in base frame
-    T_WC = np.eye(4)
-    T_WC[:3,:3] = R.from_euler('x', 180, degrees=True).as_matrix()
+    # Load transformation from hand to camera.
+    T_HC = load_hand_eye(args['hand_eye'])
+    # Transformation from the base of the robot to the hand frame.
+    T_WH = np.eye(4)
     T_WC[:3,3] = np.array([0, 0, 0.75])
+    T_WC[:3,3] = np.array([0, 0, 0.75])
+    T_WC = T_WH @ T_HC
 
-    
     #NOTE: verify these values before using the predictions
     depth_box_scale = args["depth_box_scale"] #Scale of the bounding boxes to use in determining depth
     camera_height = args["camera_height"] #Height of the camera in terms of the table/picking surface
