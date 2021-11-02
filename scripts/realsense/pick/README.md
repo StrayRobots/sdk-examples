@@ -23,4 +23,4 @@ Predicts 3D pick points of objects
 ## Notes
 * Pick point predictions can be made based on both depth estimates (default) and based on a known pick height (specified with `--z`)
 * Before using the depth predictions, the bounding boxes on the depth images should be verified that they are fully inside predicted objects (using `--visualize images`), if the boxes include parts outside of the object, you should consider using a smaller `--depth-box-scale`
-* Before using the 3d points in a downstream task, verify that the predictions are approximately on an even place with `--visualize 3d`. The visualization blocks the execution, you need to close the window to get the next prediction
+* Before using the 3d points in a downstream task, verify that the predictions are approximately on an even plane with `--visualize 3d`. The visualization blocks the execution, you need to close the window to get the next prediction
