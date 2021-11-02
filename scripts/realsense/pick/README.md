@@ -11,6 +11,7 @@ Predicts 3D pick points of objects
 3. Connect your RealSense sensor to the computer via USB
 4. Start the prediction pipeline with `python pick.py <MODEL_DIR> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP> --visualize <VISUALIZATION_TYPE> --z <PICK_HEIGHT> --minimum-confidence <MINIMUM_CONFIDENCE> --depth-box-scale <DEPTH_BOX_SCALE> --hand-eye <HAND_EYE>`
     - `<MODEL_DIR>` is the path to the provided prediction model directory
+    - `--hand-eye` is the path to the hand-eye calibration file
     - `--json-config` is the path to the saved realsense settings, defaults to the file in `StrayPublic/configs/rsconfig.json`
     - `--reset-sleep` is the time to sleep after resetting the camera settings, defaults to 5 seconds
     - `--visualize` specifies the visualization type, can be either `3d` or `images`
