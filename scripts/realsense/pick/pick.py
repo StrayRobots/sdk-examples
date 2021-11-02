@@ -3,11 +3,10 @@ import click
 import cv2
 import numpy as np
 import open3d as o3d
-from scipy.spatial.transform import Rotation as R
+from scipy.spatial.transform import Rotation
 import pyrealsense2 as rs
 from straypublic.utils import RealSensePostProcessor, get_rs_pipeline_and_config, set_default_rs_sensor_options
 import json
-
 
 def get_o3d_frame(pose, scale):
     mesh = o3d.geometry.TriangleMesh.create_coordinate_frame().scale(scale, np.zeros(3))
@@ -51,7 +50,7 @@ def load_hand_eye(hand_eye_json):
     q = data['rotation']
     T_HC = np.eye(4)
     R = Rotation.from_quat([q['i'], q['j'], q['k'], q['w']])
-    T_HC[:3, :3] = T_HC.as_matrix()
+    T_HC[:3, :3] = R.as_matrix()
     T_HC[:3, 3] = [t['x'], t['y'], t['z']]
     return T_HC
 
@@ -67,14 +66,11 @@ def to_transformation_matrix(x, y, z, rx, ry, rz):
 @click.option("--reset-sleep", default=5, help="Time to sleep (seconds) after hardware reset.")
 @click.option('--json-config', default="../../../configs/rsconfig.json")
 @click.option('--visualize', type=click.Choice(['images', '3d']), default="images")
-@click.option('--camera-height', default=0.75)
-@click.option('--object-height', default=0.075)
+@click.option('--z', default=0.66)
+@click.option('--minimum-confidence', default=0.9)
 @click.option('--depth-box-scale', default=0.5)
 @click.option('--hand-eye', type=str)
 def main(**args):
-    #Creates a detector from the provided model
-    detector = OrientedBoundingBoxDetector.from_directory(args["model"])
-
     #Setup RealSense
     json_config = json.load(open(args["json_config"]))
     pipeline, config = get_rs_pipeline_and_config(args, json_config)
@@ -93,22 +89,21 @@ def main(**args):
     color_intrinsics = color_profile.as_video_stream_profile().get_intrinsics()
     fx, fy = color_intrinsics.fx, color_intrinsics.fy
 
+    #Creates a detector from the provided model
+    detector = OrientedBoundingBoxDetector(args["model"], width, height, fx, fy, depth_scale, args["minimum_confidence"], args["depth_box_scale"])
+
     #Setup frame post processing and visualization
     colorizer = rs.colorizer()
     post_processor = RealSensePostProcessor()
 
     # Load transformation from hand to camera.
     T_HC = load_hand_eye(args['hand_eye'])
-    # Transformation from the base of the robot to the hand frame.
-    T_WH = np.eye(4)
-    T_WC[:3,3] = np.array([0, 0, 0.75])
-    T_WC[:3,3] = np.array([0, 0, 0.75])
-    T_WC = T_WH @ T_HC
 
-    #NOTE: verify these values before using the predictions
-    depth_box_scale = args["depth_box_scale"] #Scale of the bounding boxes to use in determining depth
-    camera_height = args["camera_height"] #Height of the camera in terms of the table/picking surface
-    object_height = args["object_height"] #Height of the object to pick
+    # Transformation from the base of the robot to the hand frame.
+    # Changes when the robot moves. Use to_transformation_matrix() to transform euler angles to matrices.
+    T_WH = np.eye(4)
+
+    T_WC = T_WH @ T_HC
 
     align_to = rs.stream.color
     align = rs.align(align_to)
@@ -131,26 +126,31 @@ def main(**args):
             depth_image = cv2.resize(depth_image, (width, height), interpolation=cv2.INTER_NEAREST_EXACT)
             color_image = np.asanyarray(color_frame.get_data())
 
-            #Get predictions from the detector
-            predictions = detector(color_image)
+            #Get predictions from the detector based on depth
+            predictions_from_depth = detector(color_image, depth_image)
+
+            #Get predictions from the detector based on known pick height z
+            predictions_from_height = detector(color_image, depth_image, args["z"])
             
             spheres = []
 
             #Iterate detections
-            for instance in predictions:
+            for pred_depth, pred_height in zip(predictions_from_depth, predictions_from_height):
                 #Draw detections on color and depth image
-                draw_box(color_image, instance)
-                draw_box(colorized_depth_image, instance, depth_box_scale)
+                draw_box(color_image, pred_depth)
+                draw_box(colorized_depth_image, pred_depth, args["depth_box_scale"])
 
-                #Get 3d pick point based on depth in camera coordinates and convert to world coordinates
-                point_3d_depth_C = detector.get_point_3d_from_depth(instance, depth_image, width, height, depth_scale, fx, fy, depth_box_scale)
-                point_3d_depth_W = get_point_W(point_3d_depth_C, T_WC)
-                spheres.append(get_o3d_sphere(point_3d_depth_W, np.array([0, 1, 0])))
+                #Convert depth based 3d point to robot coordinates for downstream use
+                point_3d_depth_W = get_point_W(pred_depth["point_3d"], T_WC)
+                #Convert height based 3d point to robot coordinates for downstream use
+                point_3d_height_W = get_point_W(pred_height["point_3d"], T_WC)
 
-                #Get 3d pick point based on known height of camera and object in camera coordinates and convert to world coordinates
-                point_3d_height_C = detector.get_point_3d_from_height(instance, camera_height, object_height, width, height, fx, fy)
-                point_3d_height_W = get_point_W(point_3d_height_C, T_WC)
-                spheres.append(get_o3d_sphere(point_3d_height_W, np.array([0, 0, 1])))
+
+                #Add points into 3d visualization
+                if args["visualize"] == "3d":
+                    spheres.append(get_o3d_sphere(point_3d_depth_W, np.array([0, 1, 0]))) #Green spheres
+
+                    spheres.append(get_o3d_sphere(point_3d_height_W, np.array([0, 0, 1]))) #Blue spheres
                 
 
             if args["visualize"] == "3d":
