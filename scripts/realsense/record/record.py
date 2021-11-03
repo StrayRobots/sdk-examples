@@ -6,8 +6,7 @@ from os import makedirs
 from os.path import exists, join
 import shutil
 import json
-import time
-from straypublic.utils import Preset, PostProcessor, get_rs_pipeline_and_config, set_default_rs_sensor_options
+from straypublic.utils import RealSensePostProcessor, get_rs_pipeline_and_config
 
 
 def make_clean_folders(args, path_output, path_depth, path_color, path_colorized_depth):
@@ -64,12 +63,10 @@ def main(**args):
 
     profile = pipeline.start(config)
     depth_sensor = profile.get_device().first_depth_sensor()
-    color_sensor = profile.get_device().first_color_sensor()
 
-    set_default_rs_sensor_options(color_sensor, depth_sensor)
 
     colorizer = rs.colorizer()
-    post_processor = PostProcessor()
+    post_processor = RealSensePostProcessor()
     
     depth_scale = depth_sensor.get_depth_scale()
 
@@ -80,6 +77,7 @@ def main(**args):
     frame_count = 0
     try:
         while True:
+            print(fps)
             frames = pipeline.wait_for_frames()
             aligned_frames = align.process(frames)
             aligned_depth_frame = aligned_frames.get_depth_frame()

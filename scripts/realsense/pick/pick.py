@@ -5,7 +5,7 @@ import numpy as np
 import open3d as o3d
 from scipy.spatial.transform import Rotation
 import pyrealsense2 as rs
-from straypublic.utils import RealSensePostProcessor, get_rs_pipeline_and_config, set_default_rs_sensor_options
+from straypublic.utils import RealSensePostProcessor, get_rs_pipeline_and_config
 import json
 
 def get_o3d_frame(pose, scale):
@@ -83,8 +83,6 @@ def main(**args):
     config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, fps)
     profile = pipeline.start(config)
     depth_sensor = profile.get_device().first_depth_sensor()
-    color_sensor = profile.get_device().first_color_sensor()
-    set_default_rs_sensor_options(color_sensor, depth_sensor)
 
     #Get parameters from RealSense
     depth_scale = depth_sensor.get_depth_scale()
