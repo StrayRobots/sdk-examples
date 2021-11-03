@@ -5,25 +5,20 @@ Records color and depth frames from RealSense D400 cameras
 
 ## Usage
 
-1. Clone this repository with `git clone git@github.com:StrayRobots/StrayPublic.git` and navigate into this directory with `cd StrayPublic/realsense`
-2. Install requirements with `pip install -r requirements.txt` into your current python environment
-3. Connect your RealSense sensor to the computer via USB
-4. Start image capture with `python record.py --out <OUPUT_FOLDER> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP>`
-  - `<MODEL_DIR>` is the path to the provided prediction model directory
+1. Install dependencies from https://github.com/StrayRobots/StrayPublic
+2. Connect your RealSense sensor to the computer via USB
+3. Start image capture with `python record.py --out <OUPUT_FOLDER> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP>`
+  - `--out` is the path to the directory where the dataset is saved
   - `--json-config` is the path to the saved realsense settings, defaults to the file in `StrayPublic/configs/rsconfig.json`
   - `--reset-sleep` is the time to sleep after resetting the camera settings, defaults to 5 seconds
-  - `--visualize` specifies the visualization type, can be either `3d` or `images`
-  - `--z` specifies the known pick height of the object from the camera, can be used as an alternative to depth predictions
-  - `--minimum-confidence` filters detections with a lower confidence than the specified minimum
-  - `--depth-box-scale` determines how big the bounding box should be compared to the original that is used for depth estimation
-6. Images are saved into `<OUPUT_FOLDER>/color`, `<OUPUT_FOLDER>/depth`, and `<OUPUT_FOLDER>/colorized_depth` along with a `<OUPUT_FOLDER>/camera_intrinsics.json` file
-7. To stop data collection press `esc` or `CTRL+C` in your terminal
+4. Images are saved into `<OUPUT_FOLDER>/color`, `<OUPUT_FOLDER>/depth`, and `<OUPUT_FOLDER>/colorized_depth` along with a `<OUPUT_FOLDER>/camera_intrinsics.json` file
+5. To stop data collection press `esc` or `CTRL+C` in your terminal
 
 ## Settings and configuration
 * A working preset configuration for the depth stream is provided in the `rsconfig.json` file and it is used by default
 * To use an alternative config for the depth stream, first save a preset using the `realsense-viewer` app by clicking the save button next to the preset selector
   - ![139684923-5028eed9-6e7a-4ebd-84a4-f0c8b6ef30f1](https://user-images.githubusercontent.com/4254623/139693688-b87106df-d06b-48d7-8208-f645a9e40e79.png)
-  - Specify the path to the saved json file with the `--config` flag
+  - Specify the path to the saved json file with the `--json-config` flag
 
 * The `--reset-sleep` flag is used to specify how long to sleep after the device settings have been reset to default settings. Increase the number if the script seems to crash
 

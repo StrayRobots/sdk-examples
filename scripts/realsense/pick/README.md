@@ -7,10 +7,11 @@ Predicts 3D pick points of objects
 ## Usage
 
 1. Follow the basic installation steps here: https://github.com/StrayRobots/StrayPublic
-2. Install specific requirements for the picking example by running `pip install -r requirements.txt` in this directory into your current python environment.
+2. Install specific requirements for the picking example into your current python environment by running `pip install -r requirements.txt` in this directory
 3. Connect your RealSense sensor to the computer via USB
 4. Start the prediction pipeline with `python pick.py <MODEL_DIR> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP> --visualize <VISUALIZATION_TYPE> --z <PICK_HEIGHT> --minimum-confidence <MINIMUM_CONFIDENCE> --depth-box-scale <DEPTH_BOX_SCALE> --hand-eye <HAND_EYE>`
     - `<MODEL_DIR>` is the path to the provided prediction model directory
+    - `--hand-eye` is the path to the hand-eye calibration file
     - `--json-config` is the path to the saved realsense settings, defaults to the file in `StrayPublic/configs/rsconfig.json`
     - `--reset-sleep` is the time to sleep after resetting the camera settings, defaults to 5 seconds
     - `--visualize` specifies the visualization type, can be either `3d` or `images`
@@ -22,4 +23,4 @@ Predicts 3D pick points of objects
 ## Notes
 * Pick point predictions can be made based on both depth estimates (default) and based on a known pick height (specified with `--z`)
 * Before using the depth predictions, the bounding boxes on the depth images should be verified that they are fully inside predicted objects (using `--visualize images`), if the boxes include parts outside of the object, you should consider using a smaller `--depth-box-scale`
-* Before using the 3d points in a downstream task, verify that the predictions are approximately on an even place with `--visualize 3d`. The visualization blocks the execution, you need to close the window to get the next prediction
+* Before using the 3d points in a downstream task, verify that the predictions are approximately on an even plane with `--visualize 3d`. The visualization blocks the execution, you need to close the window to get the next prediction
