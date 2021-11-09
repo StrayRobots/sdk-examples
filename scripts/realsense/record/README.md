@@ -26,3 +26,14 @@ Records color and depth frames from RealSense D400 cameras
   - Depth stream: https://github.com/StrayRobots/StrayPublic/blob/42044bfc7d425b22701f5b5da0a5edc1f3be8e6f/realsense/record.py#L136
   - Color stream: https://github.com/StrayRobots/StrayPublic/blob/42044bfc7d425b22701f5b5da0a5edc1f3be8e6f/realsense/record.py#L139
   - All available options are documented here: https://intelrealsense.github.io/librealsense/python_docs/_generated/pyrealsense2.option.html
+
+
+## Recommended RGB settings
+* The following settings are the main levers to adjust the quality of RGB images depending on lighting conditions etc. Try turning the automatic settings on/off and adjust the sliders until a desirable result is achieved. 
+* <img width="307" alt="Screen Shot 2021-11-09 at 10 46 16 AM" src="https://user-images.githubusercontent.com/4254623/140891784-0f8e7134-0e29-4b8c-8736-ca7736859755.png">
+* <img width="282" alt="Screen Shot 2021-11-09 at 10 46 38 AM" src="https://user-images.githubusercontent.com/4254623/140891833-ef8e4449-8ffc-4ef7-ad4b-8076798936b3.png">
+* <img width="290" alt="Screen Shot 2021-11-09 at 10 46 57 AM" src="https://user-images.githubusercontent.com/4254623/140891880-d3a7ae2c-e95b-422c-abcf-13a20faa0419.png">
+* <img width="277" alt="Screen Shot 2021-11-09 at 10 47 22 AM" src="https://user-images.githubusercontent.com/4254623/140891930-5292f543-d116-473d-955c-38e084755e22.png">
+* <img width="277" alt="Screen Shot 2021-11-09 at 10 47 44 AM" src="https://user-images.githubusercontent.com/4254623/140891979-4b91741b-5383-4a09-b040-641037da7930.png">
+* <img width="291" alt="Screen Shot 2021-11-09 at 10 47 58 AM" src="https://user-images.githubusercontent.com/4254623/140892018-10d26784-49bf-470b-974d-af2d30f591f4.png">
+
