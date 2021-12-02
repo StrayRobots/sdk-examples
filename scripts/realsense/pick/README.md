@@ -7,9 +7,12 @@ Predicts 3D pick points of objects
 ## Usage
 
 1. Follow the basic installation steps here: https://github.com/StrayRobots/StrayPublic
-2. Install specific requirements for the picking example into your current python environment by running `pip install -r requirements.txt` in this directory
-3. Connect your RealSense sensor to the computer via USB
-4. Start the prediction pipeline with `python pick.py <MODEL_DIR> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP> --visualize <VISUALIZATION_TYPE> --z <PICK_HEIGHT> --minimum-confidence <MINIMUM_CONFIDENCE> --depth-box-scale <DEPTH_BOX_SCALE> --hand-eye <HAND_EYE>`
+2. If you plan to use CUDA, check your CUDA version with `nvidia-smi` and install the corresponding version of torch from https://pytorch.org/
+![Screenshot from 2021-12-02 14-34-50](https://user-images.githubusercontent.com/4254623/144422990-cb72285f-ecf4-48d7-99b3-c28240f5216e.png)
+![Screenshot from 2021-12-02 14-35-37](https://user-images.githubusercontent.com/4254623/144423088-6255ceea-b3aa-4125-9154-d21ef04c5675.png)
+3. Install specific requirements for the picking example into your current python environment by running `pip install -r requirements.txt` in this directory
+4. Connect your RealSense sensor to the computer via USB
+5. Start the prediction pipeline with `python pick.py <MODEL_DIR> --json-config <PATH_TO_CONFIG> --reset-sleep <RESET_SLEEP> --visualize <VISUALIZATION_TYPE> --z <PICK_HEIGHT> --minimum-confidence <MINIMUM_CONFIDENCE> --depth-box-scale <DEPTH_BOX_SCALE> --hand-eye <HAND_EYE>`
     - `<MODEL_DIR>` is the path to the provided prediction model directory
     - `--hand-eye` is the path to the hand-eye calibration file
     - `--json-config` is the path to the saved realsense settings, defaults to the file in `StrayPublic/configs/rsconfig.json`
