@@ -9,9 +9,9 @@ Predicts 3D pick points of objects
 1. Follow the basic installation steps here: https://github.com/StrayRobots/StrayPublic
 2. If you plan to use CUDA, check your CUDA version with `nvidia-smi` and install the corresponding version of torch from https://pytorch.org/
 
-CUDA version:
+- CUDA version:
     - ![Screenshot from 2021-12-02 14-34-50](https://user-images.githubusercontent.com/4254623/144422990-cb72285f-ecf4-48d7-99b3-c28240f5216e.png)
-Install pytorch
+- Install pytorch
     - ![Screenshot from 2021-12-02 14-35-37](https://user-images.githubusercontent.com/4254623/144423088-6255ceea-b3aa-4125-9154-d21ef04c5675.png)
 
 3. Install specific requirements for the picking example into your current python environment by running `pip install -r requirements.txt` in this directory
