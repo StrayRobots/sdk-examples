@@ -15,7 +15,7 @@ import threading
 FAR_LENGTH = 1 << 32
 IMAGE_WIDTH = 640
 IMAGE_HEIGHT = 480
-FIELD_OF_VIEW = 45.0 # in degrees
+FIELD_OF_VIEW = 50.0 # in degrees
 
 def write_trajectory(scene_dir, trajectory):
     scene_path = os.path.join(scene_dir, 'scene')
@@ -72,7 +72,7 @@ def scan(link, scene_dir):
     os.makedirs(out_depth)
 
     robot = link.Item('Arm')
-    scan_targets = [t for t in link.Item('Arm Base').Childs() if 'Scan' in t.Name()]
+    scan_targets = [t for t in link.Item('ArmFrame').Childs() if 'Scan' in t.Name()]
     scan_targets.sort(key=lambda t: t.Name())
 
     camera_ref = link.Item('OAK-D')
@@ -118,7 +118,9 @@ class Runner:
         self.flags = flags
         self.output_dir = flags.out
         self.scanning = False
+        self.link = robolink.Robolink()
         self.simulation = Simulation()
+        self.simulation.reset_box()
         self.scans = self._count_scans() + 1
 
     def _count_scans(self):
@@ -128,7 +130,6 @@ class Runner:
         scans.sort()
         return int(os.path.basename(scans[-1]))
 
-
     def _scan(self):
         if self.scanning:
             return
@@ -137,26 +138,20 @@ class Runner:
         self.simulation.pause(True)
         scan_dir = os.path.join(self.output_dir, f"{self.scans:04}")
         time.sleep(0.1)
-        scan(self.simulation.link, scan_dir)
+        scan(self.link, scan_dir)
         print("Scanned", scan_dir)
         self.scans += 1
         self.simulation.pause(False)
         self.scanning = False
 
-    def _toggle_pause(self):
-        self.simulation.pause(not self.simulation.paused)
-
     def run(self):
         try:
             with keyboard.GlobalHotKeys({
                 's': self._scan,
-                'p': self._toggle_pause
                 }) as listener:
                 listener.join()
         except KeyboardInterrupt:
             self.simulation.close()
-            self.background_thread.join()
-
 
 def read_args():
     parser = argparse.ArgumentParser()
