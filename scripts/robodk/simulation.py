@@ -9,6 +9,7 @@ from matplotlib import pyplot as plt
 import multiprocessing
 
 BOX_RANDOM_ANGLE = np.pi / 8.0
+BOX_X_RANDOM = 50.0
 
 class SimulationLoop:
     CONVEYOR_BELT_END = 100.0
@@ -24,7 +25,7 @@ class SimulationLoop:
         self.write_lock = lock
 
     def run(self):
-        self.link.setSimulationSpeed(1.0)
+        self.link.setSimulationSpeed(0.4)
         self.previous_sim_time = self.link.SimulationTime()
         while not self.done:
             self._read_queue()
@@ -56,7 +57,7 @@ class SimulationLoop:
                 self.reset_box()
                 return
 
-            if current_pose[2, 3] < 10.0:
+            if self.box.Parent().Name() == "picking_setup":
                 # On conveyor belt. Let's move it.
                 current_pose[:3, 3] += diff * self.box_velocity * 1000.0 # Pose is in millimeters.
 
@@ -73,7 +74,7 @@ class SimulationLoop:
         box_pose[:3, :3] = Rotation.from_rotvec([0.0, 0.0,
             -np.pi / 2.0 + np.random.uniform(-BOX_RANDOM_ANGLE, BOX_RANDOM_ANGLE)
         ]).as_matrix()
-        box_pose[0, 3] = 200.0 + np.random.uniform(-100., 100.)
+        box_pose[0, 3] = 225.0 + np.random.uniform(-BOX_X_RANDOM, BOX_X_RANDOM)
         box_pose[1, 3] = 1800.0
         box_pose[2, 3] = 0.0
         box.setPose(robodk.Mat(box_pose.tolist()))

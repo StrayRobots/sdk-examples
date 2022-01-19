@@ -4,6 +4,8 @@ import json
 import shutil
 import robodk
 import time
+import random
+import utils
 from pynput import keyboard
 from scipy.spatial.transform import Rotation, Slerp
 from PIL import Image
@@ -11,16 +13,12 @@ from robolink import *
 from matplotlib import pyplot as plt
 from simulation import Simulation
 import threading
-
-FAR_LENGTH = 1 << 32
-IMAGE_WIDTH = 640
-IMAGE_HEIGHT = 480
-FIELD_OF_VIEW = 50.0 # in degrees
+from constants import *
 
 def write_trajectory(scene_dir, trajectory):
     scene_path = os.path.join(scene_dir, 'scene')
     os.makedirs(scene_path, exist_ok=True)
-    T_IW = np.eye(4) # np.linalg.inv(trajectory[0])
+    T_IW = np.linalg.inv(trajectory[0])
     with open(os.path.join(scene_path, 'trajectory.log'), 'wt') as f:
         for i, T_WC in enumerate(trajectory):
             T = T_IW @ T_WC
@@ -28,10 +26,12 @@ def write_trajectory(scene_dir, trajectory):
             np.savetxt(f, T, delimiter=' ')
 
 def write_camera_parameters(scene_dir):
-    cx = IMAGE_WIDTH * 0.5
-    cy = IMAGE_HEIGHT * 0.5
-    f = IMAGE_HEIGHT / np.tan(np.deg2rad(FIELD_OF_VIEW) * 0.5) * 0.5
-    intrinsics = [f, 0., 0., 0., f, 0., cx, cy, 1.0]
+    camera_matrix = utils.compute_camera_matrix(FIELD_OF_VIEW, IMAGE_WIDTH, IMAGE_HEIGHT)
+    fx = camera_matrix[0, 0]
+    fy = camera_matrix[1, 1]
+    cx = camera_matrix[0, 2]
+    cy = camera_matrix[1, 2]
+    intrinsics = [fx, 0., 0., 0., fy, 0., cx, cy, 1.0]
     with open(os.path.join(scene_dir, 'camera_intrinsics.json'), 'wt') as f:
         f.write(json.dumps({
             'depth_format': 'Z16',
@@ -73,7 +73,7 @@ def scan(link, scene_dir):
 
     robot = link.Item('Arm')
     scan_targets = [t for t in link.Item('ArmFrame').Childs() if 'Scan' in t.Name()]
-    scan_targets.sort(key=lambda t: t.Name())
+    random.shuffle(scan_targets)
 
     camera_ref = link.Item('OAK-D')
     robot.setPoseTool(camera_ref)
