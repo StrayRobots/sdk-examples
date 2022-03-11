@@ -6,6 +6,7 @@ import robodk
 import time
 import random
 import utils
+import csv
 from pynput import keyboard
 from scipy.spatial.transform import Rotation, Slerp
 from PIL import Image
@@ -13,17 +14,21 @@ from robolink import *
 from matplotlib import pyplot as plt
 from simulation import Simulation
 import threading
+from scipy.spatial.transform import Rotation
 from constants import *
 
-def write_trajectory(scene_dir, trajectory):
-    scene_path = os.path.join(scene_dir, 'scene')
-    os.makedirs(scene_path, exist_ok=True)
+def write_frames(scene_dir, trajectory):
     T_IW = np.linalg.inv(trajectory[0])
-    with open(os.path.join(scene_path, 'trajectory.log'), 'wt') as f:
+    with open(os.path.join(scene_dir, 'frames.csv'), 'wt') as f:
+        writer = csv.writer(f)
+        writer.writerow(['timestamp', 'x', 'y', 'z', 'qx', 'qy', 'qz', 'qw'])
         for i, T_WC in enumerate(trajectory):
-            T = T_IW @ T_WC
-            f.write(f"{i:06}\n")
-            np.savetxt(f, T, delimiter=' ')
+            timestamp = i * 0.2
+            frame = f"{i:06}"
+            T_IC = T_IW @ T_WC
+            x, y, z = T_IC[:3, 3]
+            qx, qy, qz, qw = Rotation.from_matrix(T_IC[:3, :3]).as_quat()
+            writer.writerow([timestamp, frame, x, y, z, qx, qy, qz, qw])
 
 def write_camera_parameters(scene_dir):
     camera_matrix = utils.compute_camera_matrix(FIELD_OF_VIEW, IMAGE_WIDTH, IMAGE_HEIGHT)
@@ -110,7 +115,7 @@ def scan(link, scene_dir):
             i += 1
 
     write_camera_parameters(scene_dir)
-    write_trajectory(scene_dir, trajectory)
+    write_frames(scene_dir, trajectory)
     print("Done scanning" + " " * 20)
 
 class Runner:
