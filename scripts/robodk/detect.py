@@ -12,8 +12,7 @@ def load_depth(path):
     depth_image = np.fromfile(path, dtype='>u4')
     w, h = depth_image[:2]
     depth_image = np.flipud(np.reshape(depth_image[2:], (h, w)))
-    scale = 1000.0
-    depth_image = np.floor(depth_image / (2**32) * scale).astype(np.float32)
+    depth_image = np.floor(depth_image * 0.5).astype(np.float32)
     return depth_image / 1000.0
 
 def compute_depth_estimate(depth_frame, detection_center):

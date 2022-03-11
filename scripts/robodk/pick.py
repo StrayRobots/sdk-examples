@@ -80,7 +80,7 @@ class Runner:
 
         # Box moving in the y direction. Figure out when it will be beneath the pre pick pose.
         target_y = self.prepick_pose[1, 3]
-        box_velocity = np.array([0.0, -200.0, 0.0])
+        box_velocity = np.array([0.0, -BELT_VELOCITY * 1000.0, 0.0])
         distance = p_W[1, 0] - target_y
 
         # Calculate when it will be at the pre-pick pose.
@@ -138,7 +138,8 @@ class Runner:
             try:
                 # Wait until the pick time.
                 self.wait_until(pick_time)
-                robot.MoveL(pick_pose)
+                probed = self._probe(robot, pick_pose)
+                robot.MoveL(probed)
                 try:
                     self.simulation.write_lock.acquire()
                     gripper.AttachClosest(list_objects=[box])
@@ -155,6 +156,58 @@ class Runner:
                     self.simulation.write_lock.release()
             except robolink.TargetReachError:
                 pass
+
+    def _probe(self, robot, pose):
+        target_pose = None
+        poses = self._pose_split(robot.Pose(), pose.Pose(), 10.0)
+        for pose in poses:
+            robot.SearchL(pose)
+            status = robot.setParam("Driver", "Status")
+            target_pose = robot.Pose()
+
+            if len(status) > 0:
+                if "1" in status:
+                    # There is contact.
+                    break
+                else:
+                    target_pose = None
+                    continue
+            else:
+                if False and robodk.pose_is_similar(robot.Pose(), pose, 0.1):
+                    target_pose = None
+                    continue
+                else:
+                    # Found target pose
+                    break
+        return target_pose
+
+    def _pose_split(self, pose1, pose2, delta_mm):
+        """
+        Split the move between 2 poses given delta_mm increments
+        returns a list of pose sub-pose
+        """
+        pose_delta = robodk.invH(pose1) * pose2
+        distance = robodk.norm(pose_delta.Pos())
+        if distance <= delta_mm:
+            return [pose2]
+
+        pose_list = []
+
+        x, y, z, w, p, r = robodk.Pose_2_UR(pose_delta)
+
+        steps = max(1, int(distance / delta_mm))
+
+        xd = x / steps
+        yd = y / steps
+        zd = z / steps
+        wd = w / steps
+        pd = p / steps
+        rd = r / steps
+        for i in range(steps - 1):
+            factor = i + 1
+            pose_list.append(pose1 * robodk.UR_2_Pose([xd * factor, yd * factor, zd * factor, wd * factor, pd * factor, rd * factor]))
+
+        return pose_list
 
     def close(self):
         self.image_cache.close()

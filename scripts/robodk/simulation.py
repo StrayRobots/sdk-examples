@@ -7,6 +7,7 @@ from PIL import Image
 from robolink import *
 from matplotlib import pyplot as plt
 import multiprocessing
+from constants import BELT_VELOCITY
 
 BOX_RANDOM_ANGLE = np.pi / 8.0
 BOX_X_RANDOM = 50.0
@@ -16,7 +17,7 @@ class SimulationLoop:
     def __init__(self, queue, lock):
         self.sleep_for = 1.0 / 60.0
         self.link = Robolink()
-        self.box_velocity = np.array([0.0, -0.2, 0.0])
+        self.box_velocity = np.array([0.0, -BELT_VELOCITY, 0.0])
         self.paused = False
         self.done = False
         self.previous_sim_time = None
@@ -25,7 +26,7 @@ class SimulationLoop:
         self.write_lock = lock
 
     def run(self):
-        self.link.setSimulationSpeed(0.4)
+        self.link.setSimulationSpeed(1.0)
         self.previous_sim_time = self.link.SimulationTime()
         while not self.done:
             self._read_queue()
