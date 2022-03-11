@@ -117,7 +117,6 @@ class Runner:
         gripper = self.link.Item('Gripper')
         robot.setPoseFrame(arm_frame)
         robot.setPoseTool(gripper)
-        box = self.link.Item('Box')
         self.simulation.reset_box()
         pick_pose = self.link.Item('PickPose')
         joints = robot.Joints()
@@ -142,6 +141,7 @@ class Runner:
                 robot.MoveL(probed)
                 try:
                     self.simulation.write_lock.acquire()
+                    box = self.link.Item('Box')
                     gripper.AttachClosest(list_objects=[box])
                 finally:
                     self.simulation.write_lock.release()
@@ -159,7 +159,7 @@ class Runner:
 
     def _probe(self, robot, pose):
         target_pose = None
-        poses = self._pose_split(robot.Pose(), pose.Pose(), 10.0)
+        poses = self._pose_split(robot.Pose(), pose.Pose(), 25.0)
         for pose in poses:
             robot.SearchL(pose)
             status = robot.setParam("Driver", "Status")

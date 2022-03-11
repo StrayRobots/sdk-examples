@@ -31,7 +31,7 @@ class SimulationLoop:
         while not self.done:
             self._read_queue()
             if self.paused:
-                time.sleep(0.01)
+                time.sleep(0.05)
                 continue
             self._step_simulation()
             time.sleep(self.sleep_for)
@@ -39,7 +39,12 @@ class SimulationLoop:
     def _read_queue(self):
         try:
             msg = self.queue.get(False)
-            getattr(self, msg[0])(*msg[1:])
+            try:
+                self.write_lock.acquire()
+                getattr(self, msg[0])(*msg[1:])
+            finally:
+                self.write_lock.release()
+
         except queue.Empty:
             pass
 
@@ -69,16 +74,29 @@ class SimulationLoop:
     def reset_box(self):
         gripper = self.link.Item('Gripper')
         gripper.DetachAll()
-        box = self.link.Item('Box')
-        box.setParent(self.link.Item('picking_setup'))
-        box_pose = np.array(box.Pose().Rows())
+        try:
+            box = self.link.Item('Box')
+            if box.Name() == "Box":
+                box.Delete()
+        except Exception as e:
+            print(e)
+
+        box_template = self.link.Item('BoxTemplate')
+        box_template.Copy()
+        self.box = self.link.Paste(self.link.Item('picking_setup'))
+        self.box.setName("Box")
+
+        self.box.setParent(self.link.Item('picking_setup'))
+
+        box_pose = np.array(self.box.Pose().Rows())
         box_pose[:3, :3] = Rotation.from_rotvec([0.0, 0.0,
             -np.pi / 2.0 + np.random.uniform(-BOX_RANDOM_ANGLE, BOX_RANDOM_ANGLE)
         ]).as_matrix()
         box_pose[0, 3] = 225.0 + np.random.uniform(-BOX_X_RANDOM, BOX_X_RANDOM)
         box_pose[1, 3] = 1800.0
         box_pose[2, 3] = 0.0
-        box.setPose(robodk.Mat(box_pose.tolist()))
+        self.box.setPose(robodk.Mat(box_pose.tolist()))
+        self.box.Scale(np.random.uniform(np.array([0.75, 0.75, 0.1]), np.ones(3)).tolist())
 
     def pause(self, value):
         self.paused = value
