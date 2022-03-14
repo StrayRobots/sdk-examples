@@ -84,6 +84,8 @@ def scan(link, scene_dir):
     robot.setPoseTool(camera_ref)
     color_camera = link.Item('Color Camera')
     depth_camera = link.Item('Depth Camera')
+    color_camera.setParam('Open', '1')
+    depth_camera.setParam('Open', '1')
     link.Cam2D_SetParams(f"FOV={FIELD_OF_VIEW} SIZE={IMAGE_WIDTH}x{IMAGE_HEIGHT}", color_camera)
     link.Cam2D_SetParams(f"FOV={FIELD_OF_VIEW} SIZE={IMAGE_WIDTH}x{IMAGE_HEIGHT} FAR_LENGTH={int(FAR_LENGTH)} DEPTH", depth_camera)
     trajectory = []

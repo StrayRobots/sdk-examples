@@ -67,6 +67,8 @@ class Runner:
     def _setup_camera(self):
         self.color_camera = self.link.Item('Color Camera')
         self.depth_camera = self.link.Item('Depth Camera')
+        self.color_camera.setParam('Open', '1')
+        self.depth_camera.setParam('Open', '1')
         self.link.Cam2D_SetParams(f"FOV=50 SIZE=640x480", self.color_camera)
         self.link.Cam2D_SetParams(f"FOV=50 SIZE=640x480 DEPTH FAR_LENGTH={int(FAR_LENGTH)}", self.depth_camera)
 
