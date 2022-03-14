@@ -11,6 +11,7 @@ from constants import BELT_VELOCITY
 
 BOX_RANDOM_ANGLE = np.pi / 8.0
 BOX_X_RANDOM = 50.0
+GRAVITY = -9.81
 
 class SimulationLoop:
     CONVEYOR_BELT_END = 100.0
@@ -66,6 +67,9 @@ class SimulationLoop:
             if self.box.Parent().Name() == "picking_setup":
                 # On conveyor belt. Let's move it.
                 current_pose[:3, 3] += diff * self.box_velocity * 1000.0 # Pose is in millimeters.
+                if current_pose[2, 3] > 5.0:
+                    z = current_pose[2, 3]
+                    current_pose[2, 3] = max(0.0, z + diff * GRAVITY * 1000.0)
 
             self.box.setPose(robodk.Mat(current_pose.tolist()))
         finally:
@@ -92,11 +96,11 @@ class SimulationLoop:
         box_pose[:3, :3] = Rotation.from_rotvec([0.0, 0.0,
             -np.pi / 2.0 + np.random.uniform(-BOX_RANDOM_ANGLE, BOX_RANDOM_ANGLE)
         ]).as_matrix()
-        box_pose[0, 3] = 225.0 + np.random.uniform(-BOX_X_RANDOM, BOX_X_RANDOM)
+        box_pose[0, 3] = 200.0 + np.random.uniform(-BOX_X_RANDOM, BOX_X_RANDOM)
         box_pose[1, 3] = 1800.0
         box_pose[2, 3] = 0.0
         self.box.setPose(robodk.Mat(box_pose.tolist()))
-        self.box.Scale(np.random.uniform(np.array([0.75, 0.75, 0.1]), np.ones(3)).tolist())
+        self.box.Scale(np.random.uniform(np.array([0.7, 0.7, 0.1]), np.ones(3)).tolist())
 
     def pause(self, value):
         self.paused = value

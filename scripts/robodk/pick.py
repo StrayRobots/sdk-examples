@@ -24,6 +24,15 @@ def to_mat(pose):
 def to_pose(matrix):
     return robodk.Mat(matrix.tolist())
 
+def compute_prepick_pose(T_WP):
+    """
+    Computes the the pre-pick pose from the estimated pick position.
+    returns: 4 x 4 transformation matrix.
+    """
+    T_WB = T_WP.copy()
+    T_WB[2, 3] += 35.0
+    return T_WB
+
 class ImageCache:
     def __init__(self):
         filenames = [f"image_{i}" for i in range(10)]
@@ -121,6 +130,7 @@ class Runner:
         robot.setPoseTool(gripper)
         self.simulation.reset_box()
         pick_pose = self.link.Item('PickPose')
+        prepick_pose = self.link.Item('PrePickPose')
         joints = robot.Joints()
         while True:
             robot.MoveL(self.link.Item('WaitPose'))
@@ -133,8 +143,10 @@ class Runner:
             pick_time, T_AP = self._compute_pick_time_and_pose(*detector_result)
             target_pose = to_pose(T_AP)
             pick_pose.setPose(target_pose)
+            T_AB = compute_prepick_pose(T_AP)
+            prepick_pose.setPose(to_pose(T_AB))
 
-            robot.MoveL(self.link.Item('PrePickPose'), blocking=False)
+            robot.MoveL(prepick_pose)
 
             try:
                 # Wait until the pick time.
@@ -161,7 +173,7 @@ class Runner:
 
     def _probe(self, robot, pose):
         target_pose = None
-        poses = self._pose_split(robot.Pose(), pose.Pose(), 25.0)
+        poses = self._pose_split(robot.Pose(), pose.Pose(), 10.0)
         for pose in poses:
             robot.SearchL(pose)
             status = robot.setParam("Driver", "Status")
@@ -174,13 +186,8 @@ class Runner:
                 else:
                     target_pose = None
                     continue
-            else:
-                if False and robodk.pose_is_similar(robot.Pose(), pose, 0.1):
-                    target_pose = None
-                    continue
-                else:
-                    # Found target pose
-                    break
+        if target_pose is None:
+            target_pose = pose
         return target_pose
 
     def _pose_split(self, pose1, pose2, delta_mm):

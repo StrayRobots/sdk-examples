@@ -12,7 +12,7 @@ def load_depth(path):
     depth_image = np.fromfile(path, dtype='>u4')
     w, h = depth_image[:2]
     depth_image = np.flipud(np.reshape(depth_image[2:], (h, w)))
-    depth_image = np.floor(depth_image * 0.5).astype(np.float32)
+    depth_image = np.floor(depth_image * 0.35).astype(np.float32)
     return depth_image / 1000.0
 
 def compute_depth_estimate(depth_frame, detection_center):
@@ -24,7 +24,7 @@ def compute_depth_estimate(depth_frame, detection_center):
     y_start = max(round(detection_center[1] - DEPTH_DETECT_RADIUS * 0.5), 0)
     y_end = min(round(detection_center[1] + DEPTH_DETECT_RADIUS * 0.5), height)
     depth_readings = depth_frame[y_start:y_end, x_start:x_end]
-    return depth_readings[depth_readings > 0.0].mean()
+    return depth_readings[depth_readings > 0.0].min()
 
 def detection_loop(queue_in, queue_out, model):
     import torch
