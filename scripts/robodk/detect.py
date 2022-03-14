@@ -9,6 +9,9 @@ from straylib.camera import Camera
 DEPTH_DETECT_RADIUS = 50.0
 
 def load_depth(path):
+    """
+    Loads depth images from disk captured by RoboDK.
+    """
     depth_image = np.fromfile(path, dtype='>u4')
     w, h = depth_image[:2]
     depth_image = np.flipud(np.reshape(depth_image[2:], (h, w)))
@@ -16,6 +19,9 @@ def load_depth(path):
     return depth_image / 1000.0
 
 def compute_depth_estimate(depth_frame, detection_center):
+    """
+    Given a depth frame and the detection point, estimates the depth at that point.
+    """
     height, width = depth_frame.shape
     # Get a square centered at the detected centered at the center of the detections
     # to estimate how far away it is.
@@ -27,6 +33,11 @@ def compute_depth_estimate(depth_frame, detection_center):
     return depth_readings[depth_readings > 0.0].min()
 
 def detection_loop(queue_in, queue_out, model):
+    """
+    The main object detection loop.
+    Reads images from the queue, runs object detection
+    and pushes pick points to the output queue.
+    """
     import torch
     from straymodel.sdk.keypoint_detector import KeypointDetector
     model = KeypointDetector(model, lengthscale=50.0)
@@ -71,6 +82,9 @@ def detection_loop(queue_in, queue_out, model):
 
 
 class Detector:
+    """
+    A helper class to run the detection loop in a background process.
+    """
     def __init__(self, model):
         self.queue_in = multiprocessing.Queue(3)
         self.queue_out = multiprocessing.Queue(1)

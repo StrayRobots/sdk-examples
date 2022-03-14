@@ -34,6 +34,10 @@ def compute_prepick_pose(T_WP):
     return T_WB
 
 class ImageCache:
+    """
+    Stores images in a temporary directory for the object detection process
+    to read.
+    """
     def __init__(self):
         filenames = [f"image_{i}" for i in range(10)]
         self.tempdir = tempfile.mkdtemp()
@@ -60,20 +64,10 @@ class Runner:
         self.T_WC = to_mat(self.link.Item('WaitPose').Pose())
         self._setup_camera()
 
-    def delete_frame(self, frame_name):
-        try:
-            frame = self.link.Item(frame_name)
-            self.link.Delete(frame)
-        except ValueError:
-            pass
-
-    def _estimate_pick_pose(self, T_WP):
-        T_WP[0, 3] += 0.5 * BOX_LENGTH
-        T_WP[1, 3] -= 0.5 * BOX_WIDTH
-        T_WP[2, 3] += BOX_HEIGHT + 5.0
-        return self.T_AW @ T_WP @ np.linalg.inv(T_TP)
-
     def _setup_camera(self):
+        """
+        Starts the color and depth camera and sets the appropriate settings.
+        """
         self.color_camera = self.link.Item('Color Camera')
         self.depth_camera = self.link.Item('Depth Camera')
         self.color_camera.setParam('Open', '1')
@@ -82,6 +76,10 @@ class Runner:
         self.link.Cam2D_SetParams(f"FOV=50 SIZE=640x480 DEPTH FAR_LENGTH={int(FAR_LENGTH)}", self.depth_camera)
 
     def _compute_pick_time_and_pose(self, timestamp, detection_m):
+        """
+        Given the object detection time stamp and depth, returns the pick pose
+        and estimated time when the object will be there.
+        """
         detection = detection_m * 1000.0
         T_WP = self.prepick_pose.copy()
 
@@ -103,6 +101,9 @@ class Runner:
         return timestamp + dt, T_WP
 
     def wait_until(self, t):
+        """
+        Waits until the given simulation time.
+        """
         while True:
             current_time = self.link.SimulationTime()
             if current_time >= t:
@@ -110,6 +111,9 @@ class Runner:
             time.sleep(0.01)
 
     def capture_image(self):
+        """
+        Captures RGB and depth images and passes them to the object detector.
+        """
         if self.detector.full():
             return
         filepath = self.image_cache.next()
@@ -122,6 +126,9 @@ class Runner:
             self.detector.push((sim_time, color_file, depth_file))
 
     def run(self):
+        """
+        The main picking loop.
+        """
         robot = self.robot
         conveyor = self.link.Item('ConveyorFrame')
         arm_frame = self.link.Item('ArmFrame')
@@ -172,6 +179,12 @@ class Runner:
                 pass
 
     def _probe(self, robot, pose):
+        """
+        Finds a pose between the current gripper pose and the pick pose such
+        that the robot does not collide with the box. If none of the poses are
+        in collision, returns
+        returns: robodk.Pose
+        """
         target_pose = None
         poses = self._pose_split(robot.Pose(), pose.Pose(), 10.0)
         for pose in poses:
