@@ -44,7 +44,6 @@ def detection_loop(queue_in, queue_out, model):
     camera = Camera((IMAGE_WIDTH, IMAGE_HEIGHT),
             utils.compute_camera_matrix(FIELD_OF_VIEW, IMAGE_WIDTH, IMAGE_HEIGHT))
 
-    i = 0
     while True:
         timestamp, rgb_image_path, depth_image_path = queue_in.get()
         depth_frame = load_depth(depth_image_path)
@@ -62,17 +61,6 @@ def detection_loop(queue_in, queue_out, model):
         point = camera.unproject(center[None], z_pick_point[None])[0]
 
         center_point = camera.project(point[None])
-
-        from matplotlib import pyplot
-        figure = pyplot.figure()
-        pyplot.imshow(image)
-        pyplot.scatter(keypoints[:, 0], keypoints[:, 1])
-        pyplot.scatter(center[None, 0], center[None, 1], c='red')
-        pyplot.scatter(center_point[:, 0], center_point[:, 1], c='green')
-        pyplot.savefig(f"/tmp/test/{i:03}.jpg")
-        pyplot.close()
-
-        i += 1
 
         # Replace old messages with latest.
         while queue_out.full():
